@@ -1,6 +1,14 @@
+# Current dependencies
 agora-token-builder==1.0.0
 asgiref==3.8.1
 Django==3.2
 sqlparse==0.5.3
 tzdata==2025.1
 channels==3.0.3
+
+# Additional dependencies
+waitress
+psycopg2-binary
+dj-database-url
+whitenoise
+django-environ
