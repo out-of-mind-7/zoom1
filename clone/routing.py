@@ -1,14 +1,9 @@
-import os
-from django.core.asgi import get_asgi_application
+# clone/routing.py
+
 from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-from clone.routing import websocket_urlpatterns
+from django.urls import path
+from .consumers import SignalingConsumer  # Import your consumer
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zoom1.settings')
-
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(websocket_urlpatterns)
-    ),
-})
+websocket_urlpatterns = [
+    path('ws/signaling/', SignalingConsumer.as_asgi()),  # Define your WebSocket path
+]
