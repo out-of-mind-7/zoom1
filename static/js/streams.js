@@ -29,7 +29,7 @@ const checkCameraAccess = async () => {
     }
     return true;
   } catch (error) {
-    alert('Failed to access camera. Please check browser permissions.');
+    alert('Failed to access camera. Please check browser yy permissions.');
     return false;
   }
 };
