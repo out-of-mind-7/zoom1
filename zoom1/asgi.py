@@ -1,30 +1,32 @@
-"""
-ASGI config for zoom1 project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
-"""
-
 import os
+import django
+
+# Set the Django settings module first
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zoom1.settings')
+
+# Initialize Django BEFORE importing any Django components
+django.setup()
+
+# Now import Django components after setup
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from channels.security.websocket import AllowedHostsOriginValidator
-from clone.routing import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zoom1.settings')
+# Create a placeholder for your websocket patterns
+websocket_urlpatterns = []
 
-print("DJANGO_SETTINGS_MODULE:", os.getenv('DJANGO_SETTINGS_MODULE'))
+# Try to import your app's routing, or use empty patterns if it fails
+try:
+    # Replace 'your_app' with your actual app name
+    from clone import routing
+    websocket_urlpatterns = routing.websocket_urlpatterns
+except ImportError:
+    pass
 
+# Define the ASGI application
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter(
-                websocket_urlpatterns
-            )
-        )
+    "websocket": AuthMiddlewareStack(
+        URLRouter(websocket_urlpatterns)
     ),
 })

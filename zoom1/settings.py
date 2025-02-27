@@ -47,8 +47,7 @@ INSTALLED_APPS = [
     'channels',
 ]
 
-ASGI_APPLICATION ='zoom1.asgi.application'
-
+ASGI_APPLICATION = 'zoom1.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -86,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION ='zoom1.wsgi.application'
+WSGI_APPLICATION = 'zoom1.wsgi.application'
 
 
 # Database
