@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-o1zk!@x%dfgmvrl=pb#ph&%_51yog73%c3j__b@&8y422#ew@g
 DEBUG = True
 
 ALLOWED_HOSTS = [
-'localhost', '127.0.0.1',
+'localhost', '127.0.0.1','zoom1-5.onrender.com',
     '192.168.195.166',
 ]
 
