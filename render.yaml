@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: zoom1-5
+    env: python
+    buildCommand: 
+      pip install -r requirements.txt
+    startCommand: 
+      daphne -b 0.0.0.0 -p $PORT zoom1.asgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: zoom1.settings
