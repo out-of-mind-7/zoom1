@@ -49,6 +49,7 @@ const fetchToken = async (channel) => {
   }
 };
 
+
 // Function to join and display local stream
 const joinAndDisplayLocalStream = async () => {
   document.getElementById('room-name').innerText = CHANNEL;
@@ -118,14 +119,35 @@ const leaveAndRemoveLocalStream = async () => {
   window.open('/', '_self');
 };
 
-// Function to toggle camera
 const toggleCamera = async (e) => {
-  if (localTracks[1].muted) {
-    await localTracks[1].setEnabled(true);
-    e.target.style.backgroundColor = '#fff';
-  } else {
-    await localTracks[1].setEnabled(false);
-    e.target.style.backgroundColor = 'rgb(255, 80, 80)';
+  try {
+    // Check if video track exists
+    if (!localTracks[1]) {
+      console.log("Creating new camera track...");
+      try {
+        localTracks[1] = await AgoraRTC.createCameraVideoTrack();
+        await client.publish(localTracks[1]);
+        console.log("Camera track created and published successfully");
+      } catch (err) {
+        console.error("Failed to create camera track:", err);
+        alert("Could not access camera. Please check permissions.");
+        return;
+      }
+    }
+    
+    // Check current enabled state and toggle it
+    const currentState = localTracks[1].enabled !== false; // Get current state
+    console.log("Current camera state:", currentState ? "ON" : "OFF");
+    
+    await localTracks[1].setEnabled(!currentState);
+    
+    // Update UI
+    e.target.style.backgroundColor = !currentState ? '#fff' : 'rgb(255, 80, 80)';
+    console.log("Camera turned", !currentState ? "ON" : "OFF");
+    
+  } catch (error) {
+    console.error("Error toggling camera:", error);
+    alert("Failed to toggle the camera: " + error.message);
   }
 };
 

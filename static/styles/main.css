@@ -101,7 +101,85 @@ body{
     margin:0 auto;
 }
 
+/* Add these styles to your CSS file */
 
+.room-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .toggle-buttons {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .toggle-buttons button {
+    flex: 1;
+    padding: 10px;
+    background-color: #e0e0e0;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .toggle-buttons button.active,
+  .toggle-buttons button:hover {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .form {
+    margin-top: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .btn {
+    padding: 10px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  
+  .btn:hover {
+    background-color: #2980b9;
+  }
+  
+  .btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: center;
+  }
 
 
 .video-container{
@@ -146,7 +224,57 @@ body{
     }
 }
 
+/* Add these styles to your existing CSS */
+#room-selection {
+    display: flex;
+    margin-bottom: 20px;
+    width: 100%;
+}
 
+#room-selection button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#room-selection button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Form field styles (if not already defined) */
+.form-field {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-field input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-field input[type="submit"]:hover {
+    background-color: #45a049;
+}
 /* ------------------  Streams Page | Controls ------------------ */
 
 
@@ -175,7 +303,6 @@ body{
 #leave-btn{
     background-color: rgb(255, 80, 80, 1);
 }
-
 
 
 

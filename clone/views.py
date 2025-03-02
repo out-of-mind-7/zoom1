@@ -1,9 +1,10 @@
+import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
 import random
 import time
 from agora_token_builder import RtcTokenBuilder
-from .models import RoomMember
+from .models import Room, RoomMember
 import json
 from django.views.decorators.csrf import csrf_exempt
 
@@ -11,11 +12,122 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
+# Using Django as an example, but you can adapt to your backend
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
+
+# Dictionary to store rooms (in a real app, use a database)
+rooms = {}
+
+@require_http_methods(["GET"])
+def check_room(request):
+    room_name = request.GET.get('room', '')
+    exists = room_name in rooms
+    return JsonResponse({'exists': exists})
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_room(request):
+    try:
+        data = json.loads(request.body)
+        room_name = data.get('room_name', '')
+        password = data.get('password', '')
+
+        if not room_name:
+            return JsonResponse({'error': 'Room name is required'}, status=400)
+
+        # Check if room already exists
+        if Room.objects.filter(name=room_name).exists():
+            return JsonResponse({'error': 'Room already exists'}, status=409)
+
+        # Create new room in the database
+        room = Room.objects.create(
+            name=room_name,
+            password=password
+        )
+
+        return JsonResponse({
+            'room_name': room_name,
+            'created_at': room.created_at.isoformat()
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def verify_room_password(request):
+    try:
+        data = json.loads(request.body)
+        room_name = data.get('room_name', '')
+        password = data.get('password', '')
+
+        if not room_name:
+            return JsonResponse({'error': 'Room name is required'}, status=400)
+
+        try:
+            room = Room.objects.get(name=room_name)
+
+            # Verify password
+            if room.password != password:
+                return JsonResponse({'error': 'Incorrect password'}, status=403)
+
+            return JsonResponse({'success': True, 'room_name': room_name})
+        except Room.DoesNotExist:
+            return JsonResponse({'error': 'Room does not exist'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+# Update your existing create_member endpoint to associate with rooms
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_member(request):
+    data = json.loads(request.body)
+    name = data.get('name')
+    room_name = data.get('room_name')
+    uid = data.get('UID')
+    
+    if not room_name or room_name not in rooms:
+        return JsonResponse({'error': 'Room does not exist'}, status=404)
+    
+    member = {
+        'name': name,
+        'uid': uid,
+        'room': room_name
+    }
+    
+    # Add member to the room
+    rooms[room_name]['members'].append(member)
+    
+    return JsonResponse(member)
+
+# Update get_member endpoint
+@require_http_methods(["GET"])
+def get_member(request):
+    uid = request.GET.get('UID')
+    room_name = request.GET.get('room_name')
+    
+    if not room_name or room_name not in rooms:
+        return JsonResponse({'error': 'Room does not exist'}, status=404)
+    
+    # Find the member in the room
+    for member in rooms[room_name]['members']:
+        if member['uid'] == uid:
+            return JsonResponse(member)
+    
+    return JsonResponse({'error': 'Member not found'}, status=404)
+
+
 def lobby(request):
     return render(request, 'lobby.html')
 
 def room(request):
-    return render(request, 'base/room.html')
+    return render(request, 'room.html')
 
 
 def getToken(request):
@@ -128,4 +240,3 @@ from django.shortcuts import render
 
 def room_view(request):
     return render(request, 'room.html')
-

@@ -3,31 +3,63 @@
 {% block content %}
 
 <main>
-
     <section id="form-container">
-
         <img id="logo" src="{% static 'images/chat-icon.png' %}"/>
 
         <div id="welcome-message">
             <h1>Welcome!!</h1>
             <p>A group video calling platform made just for you!</p>
         </div>
+        
+        <div id="room-selection">
+            <button id="create-btn" class="active">Create Room</button>
+            <button id="join-btn">Join Room</button>
+        </div>
 
-        <form id="form">
+        <!-- Create Room Form -->
+        <form id="create-form">
             <div class="field-wrapper">
-
                 <div class="form-field">
-                    <label>Room:</label>
-                    <input name="room" placeholder="Enter a room name..."  style="text-transform:uppercase"/>
+                    <label>Room Name:</label>
+                    <input name="room" placeholder="Enter a room name..." style="text-transform:uppercase"/>
                 </div>
 
                 <div class="form-field">
-                    <label>Name:</label>
-                    <input name="name" placeholder="Enter your name..."  style="text-transform:uppercase"/>
+                    <label>Your Name:</label>
+                    <input name="name" placeholder="Enter your name..." style="text-transform:uppercase"/>
                 </div>
 
                 <div class="form-field">
-                    <input type="submit" value="Join Stream" />
+                    <label>Room Password:</label>
+                    <input type="password" name="password" placeholder="Create a password..."/>
+                </div>
+
+                <div class="form-field">
+                    <input type="submit" value="Create Room" />
+                </div>
+            </div>
+        </form>
+
+        <!-- Join Room Form -->
+        <form id="join-form" style="display:none">
+            <div class="field-wrapper">
+                <div class="form-field">
+                    <label>Room Name:</label>
+                    <input name="room" placeholder="Enter room name..." style="text-transform:uppercase"/>
+                </div>
+
+                <div class="form-field">
+                    <label>Your Name:</label>
+                    <input name="name" placeholder="Enter your name..." style="text-transform:uppercase"/>
+                </div>
+
+                <div class="form-field">
+                    <label>Room Password:</label>
+                    <input type="password" name="password" placeholder="Enter room password..."/>
+                </div>
+
+                <div class="form-field">
+                    <input type="submit" value="Join Room" />
                 </div>
             </div>
         </form>
@@ -35,30 +67,132 @@
 </main>
 
 <script>
-    let form = document.getElementById('form')
+    // Toggle between create and join forms
+    let createBtn = document.getElementById('create-btn')
+    let joinBtn = document.getElementById('join-btn')
+    let createForm = document.getElementById('create-form')
+    let joinForm = document.getElementById('join-form')
 
-    let handleSubmit = async (e) => {
+    createBtn.addEventListener('click', () => {
+        createBtn.classList.add('active')
+        joinBtn.classList.remove('active')
+        createForm.style.display = 'block'
+        joinForm.style.display = 'none'
+    })
+
+    joinBtn.addEventListener('click', () => {
+        joinBtn.classList.add('active')
+        createBtn.classList.remove('active')
+        joinForm.style.display = 'block'
+        createForm.style.display = 'none'
+    })
+
+    // Create Room Form Submission
+    let createRoomForm = document.getElementById('create-form')
+    let handleCreateRoom = async (e) => {
         e.preventDefault()
         let room = e.target.room.value.toUpperCase()
         let name = e.target.name.value
+        let password = e.target.password.value
 
-        let response = await fetch(`/get_token/?channel=${room}`)
-        let data = await response.json()
+        if (!room || !name || !password) {
+            alert('All fields are required');
+            return;
+        }
 
-        let UID = data.uid
-        let token = data.token
+        try {
+            // Create room with password
+            let response = await fetch('/create_room/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'room_name': room,
+                    'password': password
+                })
+            })
+            
+            let data = await response.json()
+            
+            if (data.error) {
+                alert(data.error)
+                return
+            }
 
-        sessionStorage.setItem('UID', UID)
-        sessionStorage.setItem('token', token)
-        sessionStorage.setItem('room', room)
-        sessionStorage.setItem('name', name)
+            // Get token for the room
+            let tokenResponse = await fetch(`/get_token/?channel=${room}`)
+            let tokenData = await tokenResponse.json()
 
-        window.open('/room/', '_self')
+            let UID = tokenData.uid
+            let token = tokenData.token
+
+            sessionStorage.setItem('UID', UID)
+            sessionStorage.setItem('token', token)
+            sessionStorage.setItem('room', room)
+            sessionStorage.setItem('name', name)
+
+            window.open('/room/', '_self')
+        } catch (error) {
+            console.error('Error creating room:', error)
+            alert('Failed to create room. Please try again.')
+        }
     }
 
+    // Join Room Form Submission
+    let joinRoomForm = document.getElementById('join-form')
+    let handleJoinRoom = async (e) => {
+        e.preventDefault()
+        let room = e.target.room.value.toUpperCase()
+        let name = e.target.name.value
+        let password = e.target.password.value
 
+        if (!room || !name || !password) {
+            alert('All fields are required');
+            return;
+        }
 
-    form.addEventListener('submit', handleSubmit)
+        try {
+            // Verify room password
+            let response = await fetch('/verify_room_password/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'room_name': room,
+                    'password': password
+                })
+            })
+            
+            let data = await response.json()
+            
+            if (data.error) {
+                alert(data.error)
+                return
+            }
+
+            // Get token for the room
+            let tokenResponse = await fetch(`/get_token/?channel=${room}`)
+            let tokenData = await tokenResponse.json()
+
+            let UID = tokenData.uid
+            let token = tokenData.token
+
+            sessionStorage.setItem('UID', UID)
+            sessionStorage.setItem('token', token)
+            sessionStorage.setItem('room', room)
+            sessionStorage.setItem('name', name)
+
+            window.open('/room/', '_self')
+        } catch (error) {
+            console.error('Error joining room:', error)
+            alert('Failed to join room. Please try again.')
+        }
+    }
+
+    createRoomForm.addEventListener('submit', handleCreateRoom)
+    joinRoomForm.addEventListener('submit', handleJoinRoom)
 </script>
 
 {% endblock content %}

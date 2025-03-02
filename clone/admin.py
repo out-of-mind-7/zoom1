@@ -3,4 +3,4 @@ from .models import RoomMember
 
 @admin.register(RoomMember)
 class RoomMemberAdmin(admin.ModelAdmin):
-    list_display = ('name', 'uid', 'room_name', 'insession')
+    list_display = ('name', 'uid', 'room_name')
